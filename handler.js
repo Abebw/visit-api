@@ -24,7 +24,7 @@ function databaseRecordToClientFormat(dbRecord){
 module.exports.postVisit = async event => {
   const requestBody = JSON.parse(event.body);
   if (false == (('name' in requestBody) && ('userId' in requestBody))){
-    return invalidInput('both a userId and name to create Visit');
+    return invalidInput('both a userId and name are required to create Visit');
   }
   const newVisitJSON = {
     id: uuid.v1(),
