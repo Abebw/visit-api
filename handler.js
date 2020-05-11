@@ -23,6 +23,9 @@ function databaseRecordToClientFormat(dbRecord) {
 
 module.exports.postVisit = async (event) => {
   const requestBody = JSON.parse(event.body);
+  if (null == (requestBody)) {
+    return invalidInput("please provide body with name and userId");
+  }
   if (false == ("name" in requestBody && "userId" in requestBody)) {
     return invalidInput("both a userId and name are required to create Visit");
   }
@@ -44,8 +47,12 @@ module.exports.postVisit = async (event) => {
 };
 
 module.exports.getVisit = async (event) => {
-  if ("visitId" in event.queryStringParameters) {
-    const visitId = event.queryStringParameters.visitId;
+  const queryString = event.queryStringParameters;
+  if (null == queryString){
+    return invalidInput("please provide either a visitID or both a userId and searchString in the queryString");
+  }
+  if ("visitId" in queryString) {
+    const visitId = queryString.visitId;
     const params = {
       TableName: "Visits",
       Key: { id: visitId },
@@ -65,11 +72,11 @@ module.exports.getVisit = async (event) => {
   }
 
   if (
-    "userId" in event.queryStringParameters &&
-    "searchString" in event.queryStringParameters
+    "userId" in queryString &&
+    "searchString" in queryString
   ) {
     const searchRegexp = new RegExp(
-      event.queryStringParameters.searchString,
+      queryString.searchString,
       "i"
     );
     const params = {
@@ -93,7 +100,5 @@ module.exports.getVisit = async (event) => {
       body: JSON.stringify(items),
     };
   }
-  return invalidInput(
-    "this endpoint requires either a visitID or both a userId and searchString"
-  );
+  return invalidInput("please provide either a visitID or both a userId and searchString");
 };
